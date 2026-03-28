@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="slide-up">
+
+<!-- Hero -->
+<div class="hero-section">
+  <div>
+    <div class="hero-eyebrow"><i class="fa-solid fa-lungs"></i> BCA Final Year Project</div>
+    <h1 class="hero-title">Medical Image Synthesis<br>Using <span>GANs</span></h1>
+    <p class="hero-description">
+      A deep learning system that generates realistic synthetic pulmonary chest X-ray images
+      using Generative Adversarial Networks — addressing the challenge of limited, imbalanced
+      medical imaging datasets while preserving patient privacy.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="{{ url_for('upload') }}" class="btn btn-accent btn-lg">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Upload Dataset
+      </a>
+      <a href="{{ url_for('train') }}" class="btn btn-outline btn-lg">
+        <i class="fa-solid fa-brain"></i> Start Training
+      </a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="xray-diagram">
+      <svg class="xray-svg" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Ribs -->
+        <ellipse cx="80" cy="100" rx="60" ry="75" stroke="rgba(0,188,212,0.35)" stroke-width="1.5" fill="none"/>
+        <path d="M30 70 Q20 85 30 100" stroke="rgba(0,188,212,0.5)" stroke-width="1.5" fill="none"/>
+        <path d="M130 70 Q140 85 130 100" stroke="rgba(0,188,212,0.5)" stroke-width="1.5" fill="none"/>
+        <path d="M28 85 Q18 100 28 115" stroke="rgba(0,188,212,0.4)" stroke-width="1.5" fill="none"/>
+        <path d="M132 85 Q142 100 132 115" stroke="rgba(0,188,212,0.4)" stroke-width="1.5" fill="none"/>
+        <path d="M32 100 Q22 116 32 130" stroke="rgba(0,188,212,0.3)" stroke-width="1.5" fill="none"/>
+        <path d="M128 100 Q138 116 128 130" stroke="rgba(0,188,212,0.3)" stroke-width="1.5" fill="none"/>
+        <!-- Lungs -->
+        <ellipse cx="55" cy="110" rx="22" ry="38" fill="rgba(21,101,192,0.15)" stroke="rgba(66,165,245,0.4)" stroke-width="1"/>
+        <ellipse cx="105" cy="110" rx="22" ry="38" fill="rgba(21,101,192,0.15)" stroke="rgba(66,165,245,0.4)" stroke-width="1"/>
+        <!-- Spine -->
+        <line x1="80" y1="30" x2="80" y2="170" stroke="rgba(0,188,212,0.3)" stroke-width="2" stroke-dasharray="4,3"/>
+        <!-- Clavicles -->
+        <path d="M80 45 Q55 38 35 48" stroke="rgba(0,188,212,0.5)" stroke-width="1.5" fill="none"/>
+        <path d="M80 45 Q105 38 125 48" stroke="rgba(0,188,212,0.5)" stroke-width="1.5" fill="none"/>
+        <!-- Heart -->
+        <ellipse cx="72" cy="108" rx="12" ry="14" fill="rgba(0,188,212,0.08)" stroke="rgba(0,229,255,0.4)" stroke-width="1"/>
+        <!-- Scan lines -->
+        <line x1="20" y1="60" x2="140" y2="60" stroke="rgba(0,188,212,0.1)" stroke-width="1"/>
+        <line x1="20" y1="80" x2="140" y2="80" stroke="rgba(0,188,212,0.1)" stroke-width="1"/>
+        <line x1="20" y1="140" x2="140" y2="140" stroke="rgba(0,188,212,0.1)" stroke-width="1"/>
+        <line x1="20" y1="160" x2="140" y2="160" stroke="rgba(0,188,212,0.1)" stroke-width="1"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid stagger">
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-images"></i></div>
+    <div class="stat-value" data-counter="{{ stats.uploaded }}">{{ stats.uploaded }}</div>
+    <div class="stat-label">Images Uploaded</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    <div class="stat-value" data-counter="{{ stats.generated }}">{{ stats.generated }}</div>
+    <div class="stat-label">Images Generated</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-rotate"></i></div>
+    <div class="stat-value" data-counter="{{ stats.epochs_done }}">{{ stats.epochs_done }}</div>
+    <div class="stat-label">Epochs Completed</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-circle-dot"></i></div>
+    <div class="stat-value" style="font-size:1.4rem;padding-top:6px;">{{ stats.status|capitalize }}</div>
+    <div class="stat-label">System Status</div>
+  </div>
+</div>
+
+<!-- Pipeline overview -->
+<div class="grid-2" style="gap:20px;">
+
+  <!-- Pipeline steps -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa-solid fa-diagram-project"></i> Pipeline Steps</div>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-step {% if stats.uploaded > 0 %}done{% else %}active{% endif %}">
+        <div class="step-circle"><i class="fa-solid fa-upload"></i></div>
+        <div class="step-label">Upload Dataset</div>
+      </div>
+      <div class="pipeline-step {% if stats.uploaded > 0 and stats.epochs_done == 0 %}active{% elif stats.epochs_done > 0 %}done{% else %}inactive{% endif %}">
+        <div class="step-circle"><i class="fa-solid fa-sliders"></i></div>
+        <div class="step-label">Preprocess</div>
+      </div>
+      <div class="pipeline-step {% if stats.status == 'training' %}active{% elif stats.epochs_done > 0 %}done{% else %}inactive{% endif %}">
+        <div class="step-circle"><i class="fa-solid fa-brain"></i></div>
+        <div class="step-label">Train GAN</div>
+      </div>
+      <div class="pipeline-step {% if stats.generated > 0 %}done{% elif stats.epochs_done > 0 %}active{% else %}inactive{% endif %}">
+        <div class="step-circle"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div class="step-label">Generate</div>
+      </div>
+      <div class="pipeline-step {% if stats.generated > 0 %}active{% else %}inactive{% endif %}">
+        <div class="step-circle"><i class="fa-solid fa-chart-line"></i></div>
+        <div class="step-label">Evaluate</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;">
+      <div class="arch-flow">
+        <div class="arch-box">Noise z</div>
+        <div class="arch-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="arch-box gen">Generator</div>
+        <div class="arch-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="arch-box highlight">Fake X-Ray</div>
+        <div class="arch-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="arch-box">Discriminator</div>
+        <div class="arch-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="arch-box">Real/Fake?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa-solid fa-bolt"></i> Quick Actions</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a href="{{ url_for('upload') }}" class="btn btn-outline" style="justify-content:flex-start;">
+        <i class="fa-solid fa-cloud-arrow-up" style="color:var(--blue-light)"></i>
+        Upload chest X-ray images
+        <i class="fa-solid fa-arrow-right" style="margin-left:auto;opacity:0.4;"></i>
+      </a>
+      <a href="{{ url_for('train') }}" class="btn btn-outline" style="justify-content:flex-start;">
+        <i class="fa-solid fa-brain" style="color:var(--cyan)"></i>
+        Configure & start training
+        <i class="fa-solid fa-arrow-right" style="margin-left:auto;opacity:0.4;"></i>
+      </a>
+      <a href="{{ url_for('generate') }}" class="btn btn-outline" style="justify-content:flex-start;">
+        <i class="fa-solid fa-wand-magic-sparkles" style="color:#CE93D8"></i>
+        Generate synthetic X-rays
+        <i class="fa-solid fa-arrow-right" style="margin-left:auto;opacity:0.4;"></i>
+      </a>
+      <a href="{{ url_for('evaluation') }}" class="btn btn-outline" style="justify-content:flex-start;">
+        <i class="fa-solid fa-chart-line" style="color:var(--warning)"></i>
+        View evaluation metrics
+        <i class="fa-solid fa-arrow-right" style="margin-left:auto;opacity:0.4;"></i>
+      </a>
+      <a href="{{ url_for('gallery') }}" class="btn btn-outline" style="justify-content:flex-start;">
+        <i class="fa-solid fa-images" style="color:var(--success)"></i>
+        Browse image gallery
+        <i class="fa-solid fa-arrow-right" style="margin-left:auto;opacity:0.4;"></i>
+      </a>
+    </div>
+  </div>
+
+</div>
+</div>
+{% endblock %}

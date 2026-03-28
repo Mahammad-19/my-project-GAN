@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Upload Dataset{% endblock %}
+{% block breadcrumb %}Upload Dataset{% endblock %}
+
+{% block content %}
+<div class="slide-up">
+<div class="page-header">
+  <h1 class="page-title"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Dataset</h1>
+  <p class="page-subtitle">Add chest X-ray images for GAN training. Supports PNG, JPEG, and DICOM (.dcm) formats.</p>
+</div>
+
+<div class="grid-2">
+
+  <!-- Upload form -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-folder-plus"></i> Add Images</div>
+        <span class="badge badge-blue">{{ files|length }} files</span>
+      </div>
+      <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        <div class="drop-zone" id="dropZone">
+          <input type="file" name="files" accept=".png,.jpg,.jpeg,.dcm" multiple />
+          <div class="drop-zone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div class="drop-zone-title">Drag & Drop X-Ray images here</div>
+          <div class="drop-zone-subtitle">
+            or click to browse your files<br/>
+            <span style="margin-top:8px;display:inline-block;">
+              <span class="badge badge-blue" style="margin:2px">PNG</span>
+              <span class="badge badge-blue" style="margin:2px">JPEG</span>
+              <span class="badge badge-cyan" style="margin:2px">DICOM</span>
+            </span>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;">
+          <button type="submit" class="btn btn-accent" style="flex:1;">
+            <i class="fa-solid fa-upload"></i> Upload Files
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Dataset info card -->
+    <div class="card" style="margin-top:16px;">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-circle-info"></i> Recommended Datasets</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:0.85rem;">
+        <div style="padding:12px;background:var(--navy-3);border-radius:8px;border:1px solid var(--navy-border);">
+          <div style="font-weight:600;color:var(--text-primary);margin-bottom:4px;">
+            <i class="fa-solid fa-database" style="color:var(--blue-light);margin-right:6px;"></i>NIH Chest X-ray Dataset
+          </div>
+          <div style="color:var(--text-muted);">112,000+ frontal-view X-rays. Available on Kaggle & NIH website.</div>
+        </div>
+        <div style="padding:12px;background:var(--navy-3);border-radius:8px;border:1px solid var(--navy-border);">
+          <div style="font-weight:600;color:var(--text-primary);margin-bottom:4px;">
+            <i class="fa-solid fa-database" style="color:var(--cyan);margin-right:6px;"></i>CheXpert Dataset
+          </div>
+          <div style="color:var(--text-muted);">224,316 chest X-rays from Stanford. Labelled for 14 conditions.</div>
+        </div>
+        <div style="padding:12px;background:var(--navy-3);border-radius:8px;border:1px solid var(--navy-border);">
+          <div style="font-weight:600;color:var(--text-primary);margin-bottom:4px;">
+            <i class="fa-solid fa-database" style="color:#CE93D8;margin-right:6px;"></i>MIMIC-CXR
+          </div>
+          <div style="color:var(--text-muted);">227,827 imaging studies from Beth Israel. Requires PhysioNet access.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- File list -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa-solid fa-list"></i> Uploaded Files</div>
+      {% if files %}
+      <span class="badge badge-green"><i class="fa-solid fa-check"></i> {{ files|length }} ready</span>
+      {% endif %}
+    </div>
+
+    {% if files %}
+    <div class="file-list" style="max-height:520px;overflow-y:auto;">
+      {% for file in files %}
+      <div class="file-item">
+        <i class="fa-solid {% if file.name.endswith('.dcm') %}fa-file-medical{% else %}fa-file-image{% endif %}"></i>
+        <span class="file-name">{{ file.name }}</span>
+        <span class="file-meta">{{ file.size }} KB</span>
+        <form method="POST" action="{{ url_for('delete_file', filename=file.name) }}" style="margin-left:8px;">
+          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete {{ file.name }}?')" title="Delete">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--navy-border);display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:0.85rem;color:var(--text-muted);">{{ files|length }} file(s) available for training</span>
+      <a href="{{ url_for('train') }}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-brain"></i> Go to Training →
+      </a>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <i class="fa-solid fa-inbox"></i>
+      <p>No images uploaded yet.<br/>Add X-ray images using the form on the left.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+</div>
+{% endblock %}

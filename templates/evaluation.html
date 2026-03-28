@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Evaluation{% endblock %}
+{% block breadcrumb %}Evaluation Results{% endblock %}
+
+{% block content %}
+<div class="slide-up">
+<div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+  <div>
+    <h1 class="page-title"><i class="fa-solid fa-chart-line"></i> Evaluation Results</h1>
+    <p class="page-subtitle">Measure synthetic image quality using SSIM, PSNR, and FID metrics.</p>
+  </div>
+  <button id="evalBtn" class="btn btn-accent" onclick="runEvaluation()">
+    <i class="fa-solid fa-play"></i> Run Evaluation
+  </button>
+</div>
+
+<!-- Metric cards -->
+{% if metrics %}
+<div class="grid-3" style="margin-bottom:28px;">
+  <div class="metric-card ssim fade-in">
+    <div class="metric-icon"><i class="fa-solid fa-equals"></i></div>
+    <div class="metric-value">{{ metrics.ssim }}</div>
+    <div class="metric-name">SSIM</div>
+    <div class="metric-desc">Structural Similarity Index<br/>Higher is better (max 1.0)</div>
+  </div>
+  <div class="metric-card psnr fade-in">
+    <div class="metric-icon"><i class="fa-solid fa-signal"></i></div>
+    <div class="metric-value">{{ metrics.psnr }} <span style="font-size:1rem">dB</span></div>
+    <div class="metric-name">PSNR</div>
+    <div class="metric-desc">Peak Signal-to-Noise Ratio<br/>Higher is better</div>
+  </div>
+  <div class="metric-card fid fade-in">
+    <div class="metric-icon"><i class="fa-solid fa-arrows-left-right-to-line"></i></div>
+    <div class="metric-value">{{ metrics.fid }}</div>
+    <div class="metric-name">FID</div>
+    <div class="metric-desc">Fréchet Inception Distance<br/>Lower is better</div>
+  </div>
+</div>
+{% else %}
+<div class="card" style="margin-bottom:28px;">
+  <div class="empty-state">
+    <i class="fa-solid fa-chart-bar"></i>
+    <p>No evaluation results yet.<br/>Click <strong>Run Evaluation</strong> above to compute metrics.</p>
+    <p style="margin-top:8px;"><a href="{{ url_for('train') }}">Train the model first</a> for meaningful results.</p>
+  </div>
+</div>
+{% endif %}
+
+<div class="grid-2">
+
+  <!-- Comparison image -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa-solid fa-left-right"></i> Real vs Synthetic Comparison</div>
+      {% if comparison %}
+      <span class="badge badge-cyan">Latest</span>
+      {% endif %}
+    </div>
+    {% if comparison %}
+    <div style="cursor:pointer;" onclick="openLightbox('/{{ comparison }}', 'Real vs Synthetic Comparison')">
+      <img src="/{{ comparison }}" alt="Comparison" style="width:100%;border-radius:8px;border:1px solid var(--navy-border);" />
+      <p style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:8px;">Click to enlarge · Top row: Real · Bottom row: Synthetic</p>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:40px 24px;">
+      <i class="fa-solid fa-images"></i>
+      <p>Comparison grid will appear here after evaluation.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Metric explanations & log -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-circle-question"></i> Metric Guide</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;font-size:0.85rem;">
+        <div style="padding:12px;background:var(--navy-3);border-radius:8px;border-left:3px solid var(--blue-light);">
+          <div style="font-weight:700;color:var(--blue-light);margin-bottom:4px;">SSIM — Structural Similarity</div>
+          <div style="color:var(--text-secondary);">Measures luminance, contrast, and structural similarity between real and synthetic images. Range 0–1. Values above 0.7 are considered good.</div>
+        </div>
+        <div style="padding:12px;background:var(--navy-3);border-radius:8px;border-left:3px solid var(--cyan);">
+          <div style="font-weight:700;color:var(--cyan);margin-bottom:4px;">PSNR — Peak Signal-to-Noise Ratio</div>
+          <div style="color:var(--text-secondary);">Measures signal reconstruction quality in decibels. Higher values indicate less noise and better image fidelity. Typical good values: 25–40 dB.</div>
+        </div>
+        <div style="padding:12px;background:var(--navy-3);border-radius:8px;border-left:3px solid #CE93D8;">
+          <div style="font-weight:700;color:#CE93D8;margin-bottom:4px;">FID — Fréchet Inception Distance</div>
+          <div style="color:var(--text-secondary);">Measures distributional distance between real and generated images. Lower means synthetic images are statistically closer to real ones.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Training log summary -->
+    {% if log %}
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-table"></i> Loss History (Last 10)</div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Epoch</th><th>G Loss</th><th>D Loss</th></tr>
+        </thead>
+        <tbody>
+          {% for row in log[-10:]|reverse %}
+          <tr>
+            <td>{{ row.epoch }}</td>
+            <td>{{ row.g_loss }}</td>
+            <td>{{ row.d_loss }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+  <img src="" alt="preview" />
+  <div class="lightbox-caption" style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--text-muted);"></div>
+</div>
+{% endblock %}

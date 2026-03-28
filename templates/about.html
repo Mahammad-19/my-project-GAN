@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block breadcrumb %}About{% endblock %}
+
+{% block content %}
+<div class="slide-up">
+<div class="page-header">
+  <h1 class="page-title"><i class="fa-solid fa-circle-info"></i> About This Project</h1>
+  <p class="page-subtitle">Medical Image Synthesis Using GANs — BCA Final Year Project</p>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px;">
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa-solid fa-file-medical"></i> Project Overview</div>
+    </div>
+    <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.8;margin-bottom:16px;">
+      This project implements a <strong style="color:var(--text-primary);">Generative Adversarial Network (GAN)</strong> to
+      synthesise realistic pulmonary chest X-ray images. The system addresses the critical challenge
+      of limited, imbalanced medical imaging datasets — a common barrier in training accurate AI
+      diagnostic models.
+    </p>
+    <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.8;">
+      By learning statistical patterns from real chest X-rays, the GAN produces synthetic
+      radiographs that preserve key anatomical structures — lung fields, rib patterns, clavicles,
+      and soft-tissue details — without containing any real patient data.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa-solid fa-bullseye"></i> Key Objectives</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      {% for item in [
+        ("fa-database", "blue", "Address limited medical dataset availability"),
+        ("fa-shuffle", "cyan", "Reduce class imbalance for rare pulmonary diseases"),
+        ("fa-shield-halved", "green", "Preserve patient privacy with synthetic data"),
+        ("fa-chart-line", "purple", "Improve AI diagnostic model performance"),
+        ("fa-expand-arrows-alt", "warning", "Enable scalable medical image augmentation"),
+      ] %}
+      <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--navy-3);border-radius:8px;">
+        <i class="fa-solid fa-{{ item[0] }}" style="color:var(--{% if item[1]=='blue' %}blue-light{% elif item[1]=='cyan' %}cyan{% elif item[1]=='green' %}success{% elif item[1]=='warning' %}warning{% else %}text-muted{% endif %});width:18px;"></i>
+        <span style="font-size:0.875rem;color:var(--text-secondary);">{{ item[2] }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- System modules -->
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <div class="card-title"><i class="fa-solid fa-cubes"></i> System Modules</div>
+    <span class="badge badge-blue">8 modules</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">
+    {% set modules = [
+      ("1","fa-database","Data Acquisition","Loads PNG, JPEG, DICOM X-ray images from local storage.","blue"),
+      ("2","fa-sliders","Preprocessing","Resize, normalise, CLAHE contrast enhancement, Gaussian denoise.","cyan"),
+      ("3","fa-arrow-up-from-bracket","Generator","Dense → Conv2DTranspose blocks → tanh output (64×64×1).","blue"),
+      ("4","fa-eye","Discriminator","Conv2D blocks with LeakyReLU, Dropout → Binary logit.","cyan"),
+      ("5","fa-link","GAN Integration","Combines Generator & Discriminator, alternating training.","blue"),
+      ("6","fa-rotate","Training","Full training loop, checkpoints, CSV logging.","cyan"),
+      ("7","fa-chart-bar","Evaluation","SSIM, PSNR, FID metrics + visual comparison grids.","blue"),
+      ("8","fa-floppy-disk","Output Manager","Saves high-quality synthetic images as PNG files.","cyan"),
+    ] %}
+    {% for num, icon, name, desc, color in modules %}
+    <div style="padding:14px;background:var(--navy-3);border:1px solid var(--navy-border);border-radius:10px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="width:28px;height:28px;border-radius:8px;background:rgba({% if color=='cyan' %}0,188,212{% else %}21,101,192{% endif %},0.2);display:flex;align-items:center;justify-content:center;">
+          <i class="fa-solid fa-{{ icon }}" style="color:var(--{% if color=='cyan' %}cyan{% else %}blue-light{% endif %});font-size:0.8rem;"></i>
+        </div>
+        <span style="font-weight:600;color:var(--text-primary);font-size:0.875rem;">{{ num }}. {{ name }}</span>
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;">{{ desc }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Technology stack -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa-solid fa-code"></i> Technology Stack</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;">
+      {% for tech, icon in [
+        ("Python 3.9+","fa-code"),("TensorFlow 2.12+","fa-brain"),("Keras","fa-layer-group"),
+        ("Flask","fa-flask"),("OpenCV","fa-image"),("NumPy","fa-table"),
+        ("Matplotlib","fa-chart-line"),("scikit-image","fa-microscope"),("SciPy","fa-atom"),
+        ("pydicom","fa-file-medical"),("HTML5","fa-html5"),("CSS3","fa-css3"),("JavaScript","fa-js"),
+      ] %}
+      <span class="tech-pill"><i class="fa-solid fa-{{ icon }}"></i>{{ tech }}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Hardware/Software requirements -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa-solid fa-server"></i> System Requirements</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem;">
+      {% for label, val in [
+        ("Processor","Intel Core i5 or above"),
+        ("RAM","8 GB minimum"),
+        ("GPU","NVIDIA GPU with CUDA (recommended)"),
+        ("Storage","200 GB free disk space"),
+        ("OS","Windows 10 / Ubuntu 20+"),
+        ("Python","3.9 or above"),
+      ] %}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--navy-border);">
+        <span style="color:var(--text-muted);">{{ label }}</span>
+        <span style="color:var(--text-primary);font-weight:500;">{{ val }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- SDLC -->
+<div class="card" style="margin-top:20px;">
+  <div class="card-header">
+    <div class="card-title"><i class="fa-solid fa-arrows-spin"></i> Development Methodology — Waterfall Model</div>
+  </div>
+  <div style="display:flex;gap:0;overflow-x:auto;padding-bottom:8px;">
+    {% for step, icon, desc in [
+      ("Requirements","fa-clipboard-list","Define project scope & objectives"),
+      ("Analysis","fa-magnifying-glass","Feasibility study & SRS"),
+      ("Design","fa-pencil-ruler","System & database design, UML"),
+      ("Implementation","fa-code","Code all 8 modules + Flask UI"),
+      ("Testing","fa-vial","Unit, integration, system tests"),
+      ("Deployment","fa-rocket","Deploy & document the system"),
+    ] %}
+    <div style="flex:1;min-width:120px;text-align:center;padding:0 8px;">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue-primary),var(--cyan));display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:1rem;color:white;">
+        <i class="fa-solid fa-{{ icon }}"></i>
+      </div>
+      <div style="font-weight:600;font-size:0.8rem;color:var(--text-primary);margin-bottom:4px;">{{ step }}</div>
+      <div style="font-size:0.72rem;color:var(--text-muted);">{{ desc }}</div>
+    </div>
+    {% if not loop.last %}
+    <div style="display:flex;align-items:center;color:var(--text-muted);font-size:0.7rem;padding-top:4px;">›</div>
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+</div>
+{% endblock %}

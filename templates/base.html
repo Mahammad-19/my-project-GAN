@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}MediGAN{% endblock %} — Pulmonary X-Ray Synthesis</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="10" fill="url(#brandGrad)"/>
+        <path d="M8 18 C8 12,14 7,18 7 C22 7,28 12,28 18 C28 24,22 29,18 29 C14 29,8 24,8 18Z" stroke="white" stroke-width="1.5" fill="none" opacity="0.4"/>
+        <ellipse cx="18" cy="18" rx="4" ry="6" stroke="white" stroke-width="1.5" fill="none"/>
+        <line x1="12" y1="14" x2="24" y2="14" stroke="white" stroke-width="1" opacity="0.5"/>
+        <line x1="11" y1="18" x2="25" y2="18" stroke="white" stroke-width="1" opacity="0.5"/>
+        <line x1="12" y1="22" x2="24" y2="22" stroke="white" stroke-width="1" opacity="0.5"/>
+        <defs>
+          <linearGradient id="brandGrad" x1="0" y1="0" x2="36" y2="36">
+            <stop offset="0%" stop-color="#1565C0"/>
+            <stop offset="100%" stop-color="#00BCD4"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">MediGAN</span>
+      <span class="brand-sub">X-Ray Synthesis</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">MAIN</div>
+
+    <a href="{{ url_for('home') }}" class="nav-item {% if request.endpoint == 'home' %}active{% endif %}">
+      <i class="fa-solid fa-house-medical"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="{{ url_for('upload') }}" class="nav-item {% if request.endpoint == 'upload' %}active{% endif %}">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <span>Upload Dataset</span>
+    </a>
+
+    <div class="nav-section-label">PIPELINE</div>
+
+    <a href="{{ url_for('train') }}" class="nav-item {% if request.endpoint == 'train' %}active{% endif %}">
+      <i class="fa-solid fa-brain"></i>
+      <span>Train Model</span>
+
+      {% if training_state and training_state.status == 'training' %}
+      <span class="nav-badge pulse">LIVE</span>
+      {% endif %}
+    </a>
+
+    <a href="{{ url_for('generate') }}" class="nav-item {% if request.endpoint == 'generate' %}active{% endif %}">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+      <span>Generate Images</span>
+    </a>
+
+    <a href="{{ url_for('evaluation') }}" class="nav-item {% if request.endpoint == 'evaluation' %}active{% endif %}">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>Evaluation</span>
+    </a>
+
+    <div class="nav-section-label">MORE</div>
+
+    <a href="{{ url_for('gallery') }}" class="nav-item {% if request.endpoint == 'gallery' %}active{% endif %}">
+      <i class="fa-solid fa-images"></i>
+      <span>Gallery</span>
+    </a>
+
+    <a href="{{ url_for('about') }}" class="nav-item {% if request.endpoint == 'about' %}active{% endif %}">
+      <i class="fa-solid fa-circle-info"></i>
+      <span>About</span>
+    </a>
+  </nav>
+
+  <!-- Footer Status -->
+  <div class="sidebar-footer">
+    <div class="status-pill
+      {% if training_state and training_state.status == 'training' %}active
+      {% elif training_state and training_state.status == 'done' %}done
+      {% else %}idle
+      {% endif %}">
+
+      <span class="dot"></span>
+      <span>
+        {{ training_state.status | capitalize if training_state else 'Idle' }}
+      </span>
+    </div>
+
+    <div class="footer-label">BCA Final Year Project</div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-wrapper">
+  <header class="topbar">
+    <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <div class="topbar-breadcrumb">
+      <span>MediGAN</span>
+      <span>{% block breadcrumb %}Dashboard{% endblock %}</span>
+    </div>
+  </header>
+
+  <!-- Flash -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">
+          <span>{{ msg }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
